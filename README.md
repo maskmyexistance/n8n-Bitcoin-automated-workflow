@@ -1,5 +1,9 @@
 # n8n-Bitcoin-automated-workflow
+This project aims to demonstrate the integration of cloud infrastructure, workflow automation, database management, and data analytics through a real-world cryptocurrency transaction tracking solution.
 
+The platform automatically processes Bitcoin trade confirmation emails, extracts transaction information, and stores structured trade records in a MySQL database. By eliminating manual data entry, the solution improves record accuracy and provides a scalable foundation for portfolio analysis.
+
+Future development will focus on implementing database stored procedures for profit-and-loss calculations, position tracking, and AI-assisted evaluation of trading strategies to generate actionable investment insights.
 
 ## 1. Background
 
@@ -41,6 +45,7 @@ In 29th June, I have made a transaction in OSL with following details that send 
 ![Sample Transaction](./n8n-compose/image/SampleTransaction.png)
 
 When fetch using n8n, we got following json
+```json
 [
     {
         "@odata.etag": "W/\"CQAAABYAAAB9uBaZs2PaTasaE+V6tR4iAADFiYEy\"",
@@ -97,6 +102,7 @@ When fetch using n8n, we got following json
         }
     }
 ]
+```
 
 All the key info is store in Body field, so next step we need to extract this field
 
@@ -134,6 +140,7 @@ return [
 ```
 
 After that, you should get the json as follows
+```json
 [
     {
         "Trade Date and Time": "2026-06-29 09:23:48",
@@ -151,8 +158,10 @@ After that, you should get the json as follows
         "Settlement amount (value/quantity)": "50,751.80 HKD"
     }
 ]
+```
 
 Adjust the data type of each field and remove unnessary field, the final json will be this
+```json
 [
     {
         "transacttime": "2026-06-29 09:23:48",
@@ -166,11 +175,13 @@ Adjust the data type of each field and remove unnessary field, the final json wi
         "settlement_amount": 50751.8
     }
 ]
+```
 
 ### 2.6 Create Schema and connect mysql in n8n
 ![MySQL settings](./n8n-compose/image/MySQL%20setting.png)
 
 in mysql(hosted on my local machine), execute below SQL command to create schema for new table bitcoin_transactions
+```SQL
 CREATE TABLE bitcoin_transactions (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
 
@@ -201,6 +212,7 @@ CREATE TABLE bitcoin_transactions (
     INDEX idx_side (side),
     INDEX idx_symbol (symbol)
 );
+```
 
 Insert the cleansed record to newly created table
 
