@@ -1,31 +1,15 @@
-# Environment variables
-.env
-*.env
-n8n.env
+# env
+n8n-compose/n8n.env
+n8n-compose/.env
 
 # n8n database
-n8n_data/database.sqlite*
-n8n_data/*.sqlite*
-n8n_data/*.db
+n8n-compose/n8n_data/database.sqlite*
+n8n-compose/n8n_data/*.sqlite*
 
-# n8n runtime files
-n8n_data/config
-n8n_data/crash.journal
-n8n_data/n8nEventLog*
+# runtime
+n8n-compose/n8n_data/config
+n8n-compose/n8n_data/crash.journal
+n8n-compose/n8n_data/n8nEventLog*
 
-# Binary uploads / execution data
-n8n_data/storage/
-
-# Node packages if present
-node_modules/
-
-# Logs
-*.log
-logs/
-
-# OS files
-.DS_Store
-Thumbs.db
-
-# VS Code
-.vscode/settings.json
+# storage
+n8n-compose/n8n_data/storage/
