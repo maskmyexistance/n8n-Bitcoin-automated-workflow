@@ -1,15 +1,16 @@
-# env
+# n8n secrets
 n8n-compose/n8n.env
 n8n-compose/.env
 
-# n8n database
-n8n-compose/n8n_data/database.sqlite*
-n8n-compose/n8n_data/*.sqlite*
+# n8n runtime data
+n8n-compose/n8n_data/
 
-# runtime
-n8n-compose/n8n_data/config
-n8n-compose/n8n_data/crash.journal
-n8n-compose/n8n_data/n8nEventLog*
+# logs
+*.log
 
-# storage
-n8n-compose/n8n_data/storage/
+# vscode
+.vscode/
+
+# OS
+.DS_Store
+Thumbs.db
