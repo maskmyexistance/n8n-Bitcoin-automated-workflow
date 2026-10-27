@@ -1,0 +1,216 @@
+{
+  "name": "My workflow",
+  "nodes": [
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "output": "raw",
+        "filters": {},
+        "options": {}
+      },
+      "type": "n8n-nodes-base.microsoftOutlookTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "cd4b2a73-a961-4b71-a57d-e71a38017799",
+      "name": "Microsoft Outlook Trigger",
+      "credentials": {
+        "microsoftOutlookOAuth2Api": {
+          "id": "WBmxGG1JOTiEBJND",
+          "name": "Microsoft Outlook account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "2f54bd17-c073-4691-8093-96c51e89a7f8",
+              "name": "body",
+              "value": "={{ $json.body.content }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        224,
+        0
+      ],
+      "id": "2bd285da-1b2c-45ee-bd47-91d28dfe3ecb",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "jsCode": "const body = $input.first().json.body;\n\nconst matches = [...body.matchAll(\n  /<td.*?>(.*?)<\\/td>\\s*<td.*?>(.*?)<\\/td>/gs\n)];\n\nconst result = {};\n\nfor (const match of matches) {\n\n  const key = match[1]\n    .replace(/<[^>]*>/g, '')\n    .trim();\n\n  const value = match[2]\n    .replace(/<[^>]*>/g, '')\n    .trim();\n\n  result[key] = value;\n}\n\nreturn [\n  {\n    json: result\n  }\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        448,
+        0
+      ],
+      "id": "fe524ef4-83f7-4467-ada9-1f13d749201f",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "jsCode": "const data = $input.first().json;\n\nreturn [\n  {\n    json: {\n      transacttime: data[\"Trade Date and Time\"],\n\n      orderid: data[\"Trade ID/Reference\"],\n\n      side: data[\"Trade Direction (Client Buy/ Client sell)\"],\n\n      symbol: \"BTCHKD\",\n\n      orderqty: parseFloat(\n        data[\"Quantity (unit)\"]\n          .replace(\"BTC\", \"\")\n          .trim()\n      ),\n\n      bitprice: parseFloat(\n        data[\"Price per unit\"]\n          .replace(/,/g, \"\")\n      ),\n\n      turnover: parseFloat(\n        data[\"Consideration amount (value/quantity)\"]\n          .replace(/,/g, \"\")\n      ),\n\n      handling_fee: parseFloat(\n        data[\"Fees/Commissions:\"]\n          .replace(\"HKD\", \"\")\n          .trim()\n      ),\n\n      settlement_amount: parseFloat(\n        data[\"Settlement amount (value/quantity)\"]\n          .replace(\"HKD\", \"\")\n          .replace(/,/g, \"\")\n          .trim()\n      )\n    }\n  }\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        672,
+        0
+      ],
+      "id": "561b1069-6525-46a5-a19b-cda074af76c7",
+      "name": "Code in JavaScript1"
+    },
+    {
+      "parameters": {
+        "table": {
+          "__rl": true,
+          "value": "bitcoin_transactions",
+          "mode": "list",
+          "cachedResultName": "bitcoin_transactions"
+        },
+        "dataMode": "defineBelow",
+        "valuesToSend": {
+          "values": [
+            {
+              "column": "orderid",
+              "value": "={{ $json.orderid }}"
+            },
+            {
+              "column": "side",
+              "value": "={{ $json.side }}"
+            },
+            {
+              "column": "symbol",
+              "value": "={{ $json.symbol }}"
+            },
+            {
+              "column": "transacttime",
+              "value": "={{ $json.transacttime }}"
+            },
+            {
+              "column": "settlementtime",
+              "value": "={{ $json.transacttime }}"
+            },
+            {
+              "column": "orderqty",
+              "value": "={{ $json.orderqty }}"
+            },
+            {
+              "column": "bitprice",
+              "value": "={{ $json.bitprice }}"
+            },
+            {
+              "column": "turnover",
+              "value": "={{ $json.turnover }}"
+            },
+            {
+              "column": "handling_fee",
+              "value": "={{ $json.handling_fee }}"
+            },
+            {
+              "column": "trade_type",
+              "value": "ATS - Automatic Trade System"
+            },
+            {
+              "column": "consideration_currency",
+              "value": "HKD"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.mySql",
+      "typeVersion": 2.5,
+      "position": [
+        896,
+        0
+      ],
+      "id": "8bec85fc-dbf3-4881-a521-ff39c37fd3b9",
+      "name": "Insert rows in a table",
+      "credentials": {
+        "mySql": {
+          "id": "ZpUvPgY0mY0ZGPAq",
+          "name": "MySQL account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Microsoft Outlook Trigger": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript1": {
+      "main": [
+        [
+          {
+            "node": "Insert rows in a table",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "a074c84d-e4aa-491a-9225-da5af9fc31bb",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "fb9e3c89ac097c7622fc4d98369ddd55e13ddb41f153d5fa903533d621ec5da5"
+  },
+  "nodeGroups": [],
+  "id": "R4AGGGEkcfnIRh86",
+  "tags": []
+}
